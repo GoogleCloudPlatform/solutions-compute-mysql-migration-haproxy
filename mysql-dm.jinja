@@ -1,0 +1,106 @@
+resources:
+- type: compute.v1.instance
+  name: mysql-client
+  properties: 
+    zone: us-east1-b
+    tags:
+      items:
+        - mysql-client
+    machineType: https://www.googleapis.com/compute/v1/projects/{{ env["project"] }}/zones/us-east1-b/machineTypes/f1-micro
+    serviceAccounts:
+    - email: default
+      scopes: 
+       - https://www.googleapis.com/auth/devstorage.read_only
+    disks:
+    - deviceName: boot
+      type: PERSISTENT
+      boot: true
+      autoDelete: true
+      initializeParams:
+        sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts
+
+    networkInterfaces:
+    - network: https://www.googleapis.com/compute/v1/projects/{{ env["project"] }}/global/networks/default
+      # Access Config required to give the instance a public IP address
+      accessConfigs:
+      - name: External NAT
+        type: ONE_TO_ONE_NAT
+    metadata:
+     items:
+     - key: startup-script-url
+       value: gs://{{ properties["GCS_BUCKET_NAME"] }}/client.sh
+    
+- type: compute.v1.instance
+  name: source-mysql-primary
+  properties:
+    # The properties of the resource depend on the type of resource. For a list
+    # of properties, see the API reference for the resource.
+    zone: us-east1-b
+    tags: 
+     items:
+     - source-mysql
+    # Replace [{{ env["project"] }}] with your project ID
+    machineType: https://www.googleapis.com/compute/v1/projects/{{ env["project"] }}/zones/us-east1-b/machineTypes/f1-micro
+    serviceAccounts:
+    - email: default
+      scopes: 
+       - https://www.googleapis.com/auth/devstorage.read_only
+    
+    disks:
+    - deviceName: boot
+      type: PERSISTENT
+      boot: true
+      autoDelete: true
+      initializeParams:
+        sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts
+
+    networkInterfaces:
+    - network: https://www.googleapis.com/compute/v1/projects/{{ env["project"] }}/global/networks/default
+      # Access Config required to give the instance a public IP address
+      accessConfigs:
+      - name: External NAT
+        type: ONE_TO_ONE_NAT
+    metadata:
+     items:
+     - key: startup-script-url
+       value: gs://{{ properties["GCS_BUCKET_NAME"] }}/mysql-startup.sh
+     - key: mysql-role
+       value : primary
+- type: compute.v1.instance
+  name: source-mysql-replica
+  properties:
+    # The properties of the resource depend on the type of resource. For a list
+    # of properties, see the API reference for the resource.
+    zone: us-east1-c
+    tags: 
+     items:
+      - source-mysql
+    # Replace [{{ env["project"] }}] with your project ID
+    machineType: https://www.googleapis.com/compute/v1/projects/{{ env["project"] }}/zones/us-east1-c/machineTypes/f1-micro
+    serviceAccounts:
+    - email: default
+      scopes: 
+       - https://www.googleapis.com/auth/devstorage.read_only
+    
+    disks:
+    - deviceName: boot
+      type: PERSISTENT
+      boot: true
+      autoDelete: true
+      initializeParams:
+        sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts
+
+    networkInterfaces:
+    - network: https://www.googleapis.com/compute/v1/projects/{{ env["project"] }}/global/networks/default
+      # Access Config required to give the instance a public IP address
+      accessConfigs:
+      - name: External NAT
+        type: ONE_TO_ONE_NAT
+    metadata:
+     items:
+     - key: startup-script-url
+       value: gs://{{ properties["GCS_BUCKET_NAME"] }}/mysql-startup.sh
+     - key: mysql-role
+       value : replica
+     
+     
