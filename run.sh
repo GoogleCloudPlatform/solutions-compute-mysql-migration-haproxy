@@ -17,6 +17,6 @@
 PROJECT_ID=$1
 GCS_BUCKET_NAME=$2
 # Copying the scripts to the bucket
-gsutil cp *.sh gs://$GCS_BUCKET_NAME/
+gcloud storage cp *.sh gs://$GCS_BUCKET_NAME/
 # Execute deployment manager
 gcloud deployment-manager deployments create source-mysql --template mysql-dm.jinja --project=${PROJECT_ID} --properties="GCS_BUCKET_NAME:${GCS_BUCKET_NAME}"
